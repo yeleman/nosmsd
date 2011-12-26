@@ -1,0 +1,54 @@
+= NoSMSd =
+
+NoSMSd is a python wrapper around the Gammu-smsd Database.
+It allows one to easily setup Gammu-smsd and interact with it from python.
+
+It's moto is to let Gammu do all the work. It's a wrapper, not a framework.
+
+Dependences:
+    * peewee (pip install peewee)
+    * Any database connector you might need.
+    Beware that it's been tested only on MySQL.
+
+* Django Integration
+
+NoSMSd does _NOT_ require django.
+
+Still, if you are using it server-side and you are already using django,
+you can benefit from the following features:
+    - a management command for processing incoming SMS
+        ./manage.py nosmsd_incoming 3
+        This will allow you to access you django models & other from your
+        SMS handler.
+    - Django Admin integration: you can view your received and sent messages
+        right from the django admin.
+    - Add a database named 'smsd' for your NoSMSd schema in your settings.py
+
+* Warnings
+    - Gammu is not expecting third parties to mess-around with its DB.
+        You should not attempt to write to Django Model.
+        It is disabled on purpose. If Gammu encounters a MySQL error (like a
+        pk error on the sentitems table with have two pk), it will freeze.
+
+
+Example Use:
+
+    * Setting-up Gammu
+    Please note that NoSMSd Gammu assumes you have a working Gammu-smsd setup.
+    NoSMSd itself does only rely on its Database so you can do anything
+    without Gammu but you'll eventually need it.
+    You can find an example gammu-smsdrc in the contrib/ folder.
+
+    * Settings
+    settings.py file holds your settings. The only required one is
+    NOSMSD_HANDLER
+    It must contain a string describing the python module path of your
+    handler function.
+
+    * I want to send a message to number +33198765432
+        $ ./nosmsd_sendout.py '+33198765432' "Hello world"
+
+    * I want to test my handler / simulate an incoming SMS
+        $ ./nosmsd_inject.py '+3345678654' "weather in bamako?"
+
+    * How do I tell
