@@ -16,23 +16,26 @@ handler = logging.StreamHandler()
 logger.addHandler(handler)
 
 
-def add_to_database(*args, **options):
-    """ args format: (sender, text) """
+def main():
 
-    if len(args) != 2:
-        logger.error(u"Incorrect input. Usage is TO TEXT")
-        return False
+    # args format: (sender, text)
+    if len(sys.argv) != 3:
+        logger.error(u"Incorrect input.\nUsage: %s TO TEXT" % sys.argv[0])
+        sys.exit(1)
 
-    dest, text = args
-    dest = dest.strip()
-    text = text.strip()
-
-    return send_sms(dest, text)
-
-if __name__ == '__main__':
-    # create message object in DB
     try:
-        add_to_database(*sys.argv[1:])
+        dest, text = sys.argv[1:]
+        dest = dest.strip()
+        text = text.strip()
+
+        # create message object in DB
+        send_sms(dest, text)
+
         logger.info("Added message to DB for Gammu processing")
+
     except Exception as e:
         logger.error(u"Unable to record message:\n%r" % e)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

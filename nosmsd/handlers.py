@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 # encoding=utf-8
 
-# dummy example
+# dummy examples of handlers.
+# message is a database.Inbox message with the following (notable) fields:
+#   - date
+#   - content
+#   - identity (the sender number
+#   - status
+#   - respond(text) method to reply directly.
+
 
 def printout(message):
     import pprint

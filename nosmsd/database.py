@@ -6,6 +6,7 @@ import peewee
 from nosmsd.settings import settings as nosettings
 from nosmsd.utils import send_sms
 
+
 def get_db_class(dbtype):
     return eval('peewee.%sDatabase' % dbtype)
 

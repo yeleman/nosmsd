@@ -150,7 +150,7 @@ def process_smsd(message):
 
     parts = message_to_parts(message)
     import pprint
-    pprint.pprint(parts)
+    logger.debug(pprint.pformat(parts))
 
     # create message (first part)
     part = parts[0]

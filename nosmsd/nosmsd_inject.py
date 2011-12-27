@@ -17,25 +17,28 @@ handler = logging.StreamHandler()
 logger.addHandler(handler)
 
 
-def add_to_database(*args, **options):
-    """ args format: (sender, text) """
+def main():
 
-    if len(args) != 2:
-        logger.error(u"Incorrect input. Usage is FROM TEXT")
-        return False
+    # args format: (sender, text)
+    if len(sys.argv) != 3:
+        logger.error(u"Incorrect input.\nUsage: %s FROM TEXT" % sys.argv[0])
+        sys.exit(1)
 
-    sender, text = args
-    sender = sender.strip()
-    text = text.strip()
-
-    return Inbox.add(sender, text)
-
-if __name__ == '__main__':
     # create message object in DB
     try:
-        msg = add_to_database(*sys.argv[1:])
+        sender, text = sys.argv[1:]
+        sender = sender.strip()
+        text = text.strip()
+        msg = Inbox.add(sender, text)
+
         logger.info("Added message as ID #%d" % msg.id)
+
         # launch message handler
         nohandle(msg.id)
+
     except Exception as e:
         logger.error(u"Unable to record message:\n%r" % e)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

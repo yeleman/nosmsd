@@ -53,23 +53,32 @@ Example Use:
     handler function.
 
     * I want to send a message to number +33198765432
-        $ ./nosmsd_sendout.py '+22377667766' "Hello world"
+        $ /path/to/env/bin/nosmsd_sendout.py '+22377667766' "Hello world"
 
     * I want to test my handler / simulate an incoming SMS
-        $ ./nosmsd_inject.py '+22366908765' "weather in bamako?"
+        $ /path/to/env/bin/nosmsd_inject.py '+22366908765' "weather in bamako?"
 
     * How do I configure Gammu to process SMS in Python?
         In your gammu-smsdrc file, configure the RunOnReceive directive
-        RunOnReceive = /home/reg/src/nosmsd/nosmsd_incoming.py
+        RunOnReceive = /path/to/env/bin/nosmsd_incoming.py
 
         If you are using a virtualenv, there's a convenient script to help you
-        RunOnReceive = /home/reg/src/nosmsd/nosmsd_incoming_venv.py
+        RunOnReceive = /path/to/env/bin/nosmsd_incoming_venv.py
         You will need to set NOSMSD_VENV_PATH to the full path of your VENV.
 
         If you are using Django and want to access django features from within
         your handler, add NoSMSd to your django settings then use the following:
-        RunOnReceive = /home/reg/src/djangoproj/manage.py nosmsd_incoming
+        RunOnReceive = /path/to/djangoproj/manage.py nosmsd_incoming
 
     * I want to send an SMS from Python
         from nosmsd.utils import send_sms
         send_sms('+22377667766', u"صباح الخير")
+
+    * How do I write a handler?
+        A handler is a regular function accepting a single parameter: message.
+        message is a database.Inbox message with the following (notable) fields:
+            - date
+            - content
+            - identity (the sender number
+            - status
+            - respond(text) method to reply directly.
