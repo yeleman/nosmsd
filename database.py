@@ -3,9 +3,15 @@
 
 import peewee
 
-#dbh = peewee.SqliteDatabase('client.db')
-dbh = peewee.MySQLDatabase('nutsms', user='nutsms',
-                           passwd='nutsms', host='localhost', use_unicode=True)
+from nosmsd.settings import settings as nosettings
+from nosmsd.utils import send_sms
+
+def get_db_class(dbtype):
+    return eval('peewee.%sDatabase' % dbtype)
+
+db_adapter = get_db_class(nosettings.NOSMSD_DATABASE['type'])
+dbh = db_adapter(nosettings.NOSMSD_DATABASE['name'],
+                 **nosettings.NOSMSD_DATABASE_OPTIONS)
 
 
 class BaseModel(peewee.Model):
@@ -75,6 +81,9 @@ class Inbox(BaseModel):
     @property
     def date(self):
         return self.ReceivingDateTime
+
+    def respond(self, text):
+        return send_sms(self.SenderNumber, text)
 
     @classmethod
     def from_id(cls, id_):

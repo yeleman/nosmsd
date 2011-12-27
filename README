@@ -22,7 +22,8 @@ you can benefit from the following features:
         SMS handler.
     - Django Admin integration: you can view your received and sent messages
         right from the django admin.
-    - Add a database named 'smsd' for your NoSMSd schema in your settings.py
+    - Add a database named 'smsd' for your NoSMSd schema and 'nosmsd' in the
+      INSTALLED_APPS in your django settings.py
 
 * Warnings
     - Gammu is not expecting third parties to mess-around with its DB.
@@ -39,6 +40,12 @@ Example Use:
     without Gammu but you'll eventually need it.
     You can find an example gammu-smsdrc in the contrib/ folder.
 
+    * Database schema
+    NoSMSd is using the Gammu SQL schema with a small addition to the Inbox
+    Table.
+    Create your tables with provided script in contrib/ or use the alter
+    statement also available if you already have a working Gammu.
+
     * Settings
     settings.py file holds your settings. The only required one is
     NOSMSD_HANDLER
@@ -46,9 +53,23 @@ Example Use:
     handler function.
 
     * I want to send a message to number +33198765432
-        $ ./nosmsd_sendout.py '+33198765432' "Hello world"
+        $ ./nosmsd_sendout.py '+22377667766' "Hello world"
 
     * I want to test my handler / simulate an incoming SMS
-        $ ./nosmsd_inject.py '+3345678654' "weather in bamako?"
+        $ ./nosmsd_inject.py '+22366908765' "weather in bamako?"
 
-    * How do I tell
+    * How do I configure Gammu to process SMS in Python?
+        In your gammu-smsdrc file, configure the RunOnReceive directive
+        RunOnReceive = /home/reg/src/nosmsd/nosmsd_incoming.py
+
+        If you are using a virtualenv, there's a convenient script to help you
+        RunOnReceive = /home/reg/src/nosmsd/nosmsd_incoming_venv.py
+        You will need to set NOSMSD_VENV_PATH to the full path of your VENV.
+
+        If you are using Django and want to access django features from within
+        your handler, add NoSMSd to your django settings then use the following:
+        RunOnReceive = /home/reg/src/djangoproj/manage.py nosmsd_incoming
+
+    * I want to send an SMS from Python
+        from nosmsd.utils import send_sms
+        send_sms('+22377667766', u"صباح الخير")
