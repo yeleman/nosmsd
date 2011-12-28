@@ -35,11 +35,11 @@ NOSMSD_MIX_ENCODING_PARTS = False
 
 # try to find local settings to retrieve VENV path
 for fpath in ['/etc/nosmsd.conf.py',
-              os.path.expanduser('.nosmsd.conf.py'),
-              os.path.expanduser('nosmsd.conf.py'),
+              os.path.expanduser('~/.nosmsd.conf.py'),
+              os.path.expanduser('~/nosmsd.conf.py'),
               'nosmsd.conf.py']:
     try:
-        imp.load_source('settings', fpath)
+        imp.load_source('local_settings', fpath)
         break
     except (IOError, ImportError):
         continue

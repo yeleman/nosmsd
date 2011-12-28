@@ -164,11 +164,10 @@ def process_smsd(message):
 
     if parts.__len__() > 1:
         msg_id = dbh.last_insert_id(cursor, Outbox)
-        print(u"MULTIPART with ID %d" % msg_id)
+        logger.debug(u"MULTIPART with ID %d" % msg_id)
 
         for i in range(1, parts.__len__()):
             part = parts[i]
-            print(u"PART: %s" % part)
             cursor.execute("INSERT INTO outbox_multipart " \
                            "(ID, Coding, TextDecoded, " \
                            "SequencePosition, UDH) " \
