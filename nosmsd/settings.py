@@ -44,7 +44,7 @@ for fpath in ['/etc/nosmsd.conf.py',
     except (IOError, ImportError):
         continue
 try:
-    local_settings = __import__('settings')
+    local_settings = __import__('local_settings')
     from local_settings import *
 except ImportError as e:
     pass
