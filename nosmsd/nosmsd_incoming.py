@@ -24,17 +24,17 @@ if nosettings.NOSMSD_GETTEXT:
 def handle(*args, **options):
 
     # Message ID in DB is provided as first argument
-    if len(args) != 1:
-        logger.warning(u"No message ID provided")
-        return False
+    if len(args) != 2:
+        logger.error(u"No message ID provided")
+        sys.exit(1)
     try:
-        sql_id = int(args[0])
+        sql_id = int(args[1])
     except:
         sql_id = None
 
     if not isinstance(sql_id, int):
         logger.error(u"Provided ID (%s) is not an int." % sql_id)
-        return False
+        sys.exit(1)
 
     # open up smsd DB
     try:
@@ -69,4 +69,4 @@ def handle(*args, **options):
     message.save()
 
 if __name__ == '__main__':
-    handle(*sys.argv[1:])
+    handle(*sys.argv)

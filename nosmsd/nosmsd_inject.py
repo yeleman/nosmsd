@@ -17,16 +17,16 @@ handler = logging.StreamHandler()
 logger.addHandler(handler)
 
 
-def main():
+def handle(*args, **options):
 
     # args format: (sender, text)
-    if len(sys.argv) != 3:
-        logger.error(u"Incorrect input.\nUsage: %s FROM TEXT" % sys.argv[0])
+    if len(args) != 3:
+        logger.error(u"Incorrect input.\nUsage: %s FROM TEXT" % args[0])
         sys.exit(1)
 
     # create message object in DB
     try:
-        sender, text = sys.argv[1:]
+        sender, text = args[1:]
         sender = sender.strip()
         text = text.strip()
         msg = Inbox.add(sender, text)
@@ -41,4 +41,4 @@ def main():
         sys.exit(1)
 
 if __name__ == '__main__':
-    main()
+    handle(*sys.argv)

@@ -2,11 +2,12 @@
 # encoding=utf-8
 # maintainer: rgaudin
 
+import sys
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import translation
 
-from nosmsd.nosmsd_incoming import handle as nohandle
+from nosmsd.nosmsd_inject import handle as nohandle
 
 
 class Command(BaseCommand):
@@ -15,7 +16,7 @@ class Command(BaseCommand):
 
         translation.activate(settings.DEFAULT_LOCALE)
 
-        args = (u"%s %s" % (sys.argv[0], u"nosmsd_incoming"),) + args
+        args = (u"%s %s" % (sys.argv[0], u"nosmsd_inject"),) + args
         nohandle(*args, DJANGO=True)
 
         translation.deactivate()

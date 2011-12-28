@@ -16,15 +16,15 @@ handler = logging.StreamHandler()
 logger.addHandler(handler)
 
 
-def main():
+def handle(*args, **options):
 
     # args format: (sender, text)
-    if len(sys.argv) != 3:
-        logger.error(u"Incorrect input.\nUsage: %s TO TEXT" % sys.argv[0])
+    if len(args) != 3:
+        logger.error(u"Incorrect input.\nUsage: %s TO TEXT" % args[0])
         sys.exit(1)
 
     try:
-        dest, text = sys.argv[1:]
+        dest, text = args[1:]
         dest = dest.strip()
         text = text.strip()
 
@@ -38,4 +38,4 @@ def main():
         sys.exit(1)
 
 if __name__ == '__main__':
-    main()
+    handle(*sys.argv)
