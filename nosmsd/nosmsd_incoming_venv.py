@@ -42,4 +42,4 @@ sys.path[:0] = new_sys_path
 from nosmsd.nosmsd_incoming import handle
 
 if __name__ == '__main__':
-    handle(*sys.argv[1:])
+    handle(*sys.argv)
