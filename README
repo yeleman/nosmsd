@@ -59,6 +59,7 @@ Example Use:
         - ~/nosmsd.conf.py
         - nosmsd.conf.py
     You can overwrite any of the existing config vars in the settings.py module.
+    You can find an example in the contrib/ folder.
 
     * I want to send a message to number +33198765432
         $ /path/to/env/bin/nosmsd_sendout.py '+22377667766' "Hello world"
