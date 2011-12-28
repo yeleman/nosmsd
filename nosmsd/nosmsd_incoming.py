@@ -8,9 +8,9 @@ import time
 import logging
 from datetime import datetime, timedelta
 
-from nosmsd.settings import settings as nosettings
 from nosmsd.utils import import_path
 from nosmsd.database import Inbox
+from nosmsd.settings import settings as nosettings
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

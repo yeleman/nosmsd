@@ -10,6 +10,9 @@ Dependences:
     * Any database connector you might need.
     Beware that it's been tested only on MySQL.
 
+Installation:
+    pip install nosmsd
+
 * Django Integration
 
 NoSMSd does _NOT_ require django.
@@ -47,10 +50,15 @@ Example Use:
     statement also available if you already have a working Gammu.
 
     * Settings
-    settings.py file holds your settings. The only required one is
-    NOSMSD_HANDLER
-    It must contain a string describing the python module path of your
-    handler function.
+    If you only want to send out SMS, you don't need to configure anything.
+    If you want to receive, you need to specify your message handler with
+    NOSMSD_HANDLER. It is the full module.function path to your handler.
+    Configure it by creating a python module in one of the following locations:
+        - /etc/nosmsd.conf.py
+        - ~/.nosmsd.conf.py
+        - ~/nosmsd.conf.py
+        - nosmsd.conf.py
+    You can overwrite any of the existing config vars in the settings.py module.
 
     * I want to send a message to number +33198765432
         $ /path/to/env/bin/nosmsd_sendout.py '+22377667766' "Hello world"

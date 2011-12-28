@@ -4,19 +4,26 @@
 import sys
 import site
 import os
-
-# import the settings.py file to be able to retrieve VENV path
 import imp
+
+# try to find local settings to retrieve VENV path
+for fpath in ['/etc/nosmsd.conf.py',
+              os.path.expanduser('.nosmsd.conf.py'),
+              os.path.expanduser('nosmsd.conf.py'),
+              'nosmsd.conf.py']:
+    try:
+        imp.load_source('settings', fpath)
+        break
+    except (IOError, ImportError):
+        continue
 try:
-    imp.find_module('settings')  # Assumed to be in the same directory.
+    local_settings = __import__('settings')
+    vepath = local_settings.NOSMSD_VENV_PATH
 except ImportError:
-    sys.stderr.write("Error: Can't find the file 'settings.py' in " \
-                     "the directory containing %r.\n" % __file__)
-    sys.exit(1)
-from settings import settings as nosettings
+    vepath = None
 
 # exit if VENV path is not set or does not exist.
-vepath = nosettings.NOSMSD_VENV_PATH
+#vepath = nosettings.NOSMSD_VENV_PATH
 if not os.path.exists(unicode(vepath)):
     sys.stderr.write("Virtual Env not found: %r\n" % vepath)
     sys.exit(1)

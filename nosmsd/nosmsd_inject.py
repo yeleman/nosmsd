@@ -7,9 +7,9 @@
 import sys
 import logging
 
-from nosmsd.settings import settings as nosettings
 from nosmsd.database import Inbox
 from nosmsd.nosmsd_incoming import handle as nohandle
+from nosmsd.settings import settings as nosettings
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
