@@ -34,7 +34,7 @@ def handle(*args, **options):
         logger.info("Added message as ID #%d" % msg.id)
 
         # launch message handler
-        nohandle(msg.id)
+        nohandle(args[0], msg.id)
 
     except Exception as e:
         logger.error(u"Unable to record message:\n%r" % e)
