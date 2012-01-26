@@ -14,9 +14,6 @@ NOSMSD_HANDLER = 'nosmsd.handlers.printout'
 NOSMSD_GETTEXT = False
 NOSMSD_GETTEXT_LOCALE = 'en_US.UTF-8'
 
-# Full Path to virtual-env 'site-packages' folder
-NOSMSD_VENV_PATH = None
-
 # DATABASE DEFINITION
 # TYPES: Sqlite, MySQL, Postgres
 NOSMSD_DATABASE = {'type': 'Sqlite', 'name': 'gammu-smsd.db'}

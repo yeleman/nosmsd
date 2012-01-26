@@ -116,7 +116,6 @@ setup(
     package_data=package_data,
 
     scripts=['nosmsd/nosmsd_incoming.py',
-             'nosmsd/nosmsd_incoming_venv.py',
              'nosmsd/nosmsd_inject.py',
              'nosmsd/nosmsd_sendout.py'],
 
