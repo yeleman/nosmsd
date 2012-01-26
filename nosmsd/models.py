@@ -3,19 +3,6 @@
 
 from django.db import models
 
-DATABASE = 'smsd'
-
-
-class ForeignDBManager(models.Manager):
-
-    def __init__(self, database, *args, **kwargs):
-        self.database = database
-        super(ForeignDBManager, self).__init__(*args, **kwargs)
-
-    def get_query_set(self):
-        return super(ForeignDBManager, self).get_query_set() \
-                                            .using(self.database)
-
 
 class Inbox(models.Model):
 
@@ -64,8 +51,6 @@ class Inbox(models.Model):
     processed = models.CharField(max_length=15,
                                  db_column='Processed', choices=PROCS)
     status = models.CharField(max_length=27, choices=STATUSES)
-
-    objects = ForeignDBManager(DATABASE)
 
     def __unicode__(self):
         return self.textdecoded
@@ -148,8 +133,6 @@ class SentItems(models.Model):
     tpmr = models.IntegerField(db_column='TPMR')
     relativevalidity = models.IntegerField(db_column='RelativeValidity')
     creatorid = models.TextField(db_column='CreatorID')
-
-    objects = ForeignDBManager(DATABASE)
 
     def __unicode__(self):
         return self.textdecoded

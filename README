@@ -27,6 +27,8 @@ you can benefit from the following features:
         right from the django admin.
     - Add a database named 'smsd' for your NoSMSd schema and 'nosmsd' in the
       INSTALLED_APPS in your django settings.py
+    - Also add DATABASE_ROUTERS = ['nosmsd.django_routers.NoSMSdRouter'] to
+      your django settings.py
 
 * Warnings
     - Gammu is not expecting third parties to mess-around with its DB.
@@ -70,10 +72,6 @@ Example Use:
     * How do I configure Gammu to process SMS in Python?
         In your gammu-smsdrc file, configure the RunOnReceive directive
         RunOnReceive = /path/to/env/bin/nosmsd_incoming.py
-
-        If you are using a virtualenv, there's a convenient script to help you
-        RunOnReceive = /path/to/env/bin/nosmsd_incoming_venv.py
-        You will need to set NOSMSD_VENV_PATH to the full path of your VENV.
 
         If you are using Django and want to access django features from within
         your handler, add NoSMSd to your django settings then use the following:
