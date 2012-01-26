@@ -1,0 +1,29 @@
+[gammu]
+device=/dev/ttyUSB0
+connection=at
+
+[smsd]
+Service = sql
+Driver = native_mysql
+Host = localhost
+User = gammu
+Password = gammu
+Database = gammu
+
+debuglevel = 1
+logfile = /tmp/smsd.log
+
+LoopSleep = 10
+CheckSecurity = 0
+CheckBattery = 0
+CheckSignal = 0
+ResetFrequency = 1800
+HardResetFrequency = 86400
+
+DeliveryReport = log
+MultipartTimeout = 1800
+
+RunOnReceive = /path/to/my/virutualenv/bin/python /path/to/project/manage.py nosmsd_incoming
+
+[exclude_smsc]
++22366700050
