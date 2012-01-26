@@ -4,7 +4,7 @@
 
 import sys
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.utils import translation
 
 from nosmsd.nosmsd_inject import handle as nohandle
