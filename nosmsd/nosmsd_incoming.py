@@ -4,9 +4,7 @@
 
 import sys
 import locale
-import time
 import logging
-from datetime import datetime, timedelta
 
 from nosmsd.utils import import_path
 from nosmsd.database import Inbox
@@ -24,7 +22,9 @@ if nosettings.NOSMSD_GETTEXT:
 def handle(*args, **options):
 
     # Message ID in DB is provided as first argument
-    if len(args) != 2:
+    # multiple ID are passed for multipart.
+    # we'll only work on firt one as Inbox retrieves other parts.
+    if len(args) < 2:
         logger.error(u"No message ID provided")
         sys.exit(1)
     try:
@@ -36,7 +36,7 @@ def handle(*args, **options):
         logger.error(u"Provided ID (%s) is not an int." % sql_id)
         sys.exit(1)
 
-    # open up smsd DB
+    # retrieve message from DB
     try:
         message = Inbox.select().get(ID=sql_id, Processed=Inbox.PROC_FALSE)
     except Inbox.DoesNotExist:

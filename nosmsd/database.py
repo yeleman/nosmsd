@@ -57,7 +57,72 @@ class Inbox(BaseModel):
 
     @property
     def content(self):
-        return self.TextDecoded
+        return Inbox.multipart_text(self)
+
+    @property
+    def udh_root(self):
+        if not self.UDH:
+            return ''
+        return self.UDH[-2:]
+
+    @property
+    def SequencePosition(self):
+        try:
+            return int(self.UDH[:-2])
+        except:
+            return 0
+
+    def is_multipart(self):
+        return bool(len(self.UDH))
+
+    def parts(self):
+        return Inbox.parts_from(self)
+
+    @classmethod
+    def parts_from(cls, message):
+        parts = {}
+        peers = Inbox.filter(SenderNumber=message.SenderNumber,
+                             UDH__contains=message.udh_root,
+                             Processed=cls.PROC_FALSE)
+        for peer in peers:
+            # UDH colision?
+            if not peer.UDH.startswith(message.udh_root):
+                continue
+            parts[peer.SequencePosition] = peer
+
+        return parts
+
+    @classmethod
+    def multipart_text(cls, message):
+        if message.is_multipart():
+            return u''.join(cls.parts_from(message))
+        else:
+            return message.TextDecoded
+
+    def change_status(self, new_status, cascade=True):
+        if not new_status in (self.STATUS_CREATED,
+                              self.STATUS_PROCESSED,
+                              self.STATUS_ERROR):
+            return False
+        if new_status == self.STATUS_CREATED:
+            self.Processed = self.PROC_FALSE
+        else:
+            self.Processed = self.PROC_TRUE
+        self.status = new_status
+        self.save()
+        if cascade and self.is_multipart():
+            for part in self.parts():
+                part.change_status(new_status, cascade=False)
+        return True
+
+    def mark_processed(self, cascade=True):
+        self.change_status(self.STATUS_PROCESSED)
+
+    def mark_error(self, cascade=True):
+        self.change_status(self.STATUS_ERROR)
+
+    def unmark_processed(self, cascade=True):
+        self.change_status(self.STATUS_CREATED)
 
     @property
     def identity(self):
@@ -65,7 +130,7 @@ class Inbox(BaseModel):
 
     @property
     def is_hw_processed(self):
-        return self.Processed == PROC_TRUE
+        return self.Processed == self.PROC_TRUE
 
     @property
     def is_processed(self):

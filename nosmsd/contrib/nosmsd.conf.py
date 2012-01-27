@@ -4,9 +4,10 @@
 # example user config file
 
 NOSMSD_HANDLER = 'myapp.mymodule.my_function'
-NOSMSD_GETTEXT = True
-NOSMSD_GETTEXT_LOCALE = 'fr_FR.UTF-8'
+NOSMSD_GETTEXT = False
+NOSMSD_GETTEXT_LOCALE = 'en_US.UTF-8'
 
 NOSMSD_DATABASE = {'type': 'MySQL', 'name': 'gammu'}
 NOSMSD_DATABASE_OPTIONS = {'user': 'gammu', 'passwd': 'gammu',
-                           'host': 'localhost', 'use_unicode': True}
+                           'host': 'localhost',
+                           'use_unicode': True, 'charset': 'utf8'}

@@ -2,9 +2,6 @@
 # encoding=utf-8
 # maintainer: rgaudin
 
-import re
-import urllib
-import time
 import logging
 import logging.handlers
 import random
@@ -33,9 +30,9 @@ def send_sms(to, text):
     process(m)
 
 
-def random_udh(length):
+def random_udh():
     """ random alnum string """
-    return '050003' + hex(random.randint(0, 255))[2:].upper()
+    return unicode('050003' + hex(random.randint(0, 255))[2:].upper().zfill(2))
 
 
 def msg_is_unicode(text):
@@ -50,39 +47,39 @@ def msg_is_unicode(text):
 
 def message_to_parts(message):
     """ converts text/identity dict to list of dict repr gammu parts """
-    CODING_UNICODE = 'Unicode_No_Compression'
-    CODING_DEFAULT = 'Default_No_Compression'
-    MAX_LEN = 160
+    CODING_UNICODE = u'Unicode_No_Compression'
+    CODING_DEFAULT = u'Default_No_Compression'
+    MAX_LEN = 156
     UMAX_LEN = 70
-    CREATOR = 'nosmsd'
+    CREATOR = u'nosmsd'
 
-    text = message['text']
-    udh = random_udh(8)
+    text = unicode(message['text'])
+    udh = random_udh()
     is_unicode = msg_is_unicode(text)
-    length = text.__len__()
-    first_part = {'DestinationNumber': message['identity'],
-                  'Coding': '',
-                  'TextDecoded': '',
-                  'MultiPart': '',
+    length = len(text)
+    first_part = {'DestinationNumber': unicode(message['identity']),
+                  'Coding': u'',
+                  'TextDecoded': u'',
+                  'MultiPart': u'',
                   'UDH': None,
                   'CreatorID': CREATOR}
     if not is_unicode and length <= MAX_LEN:
         # msg is short ascii text. create single
         first_part['Coding'] = CODING_DEFAULT
         first_part['TextDecoded'] = text
-        first_part['MultiPart'] = 'false'
+        first_part['MultiPart'] = u'false'
         return [first_part, ]
     elif is_unicode and length <= UMAX_LEN:
         # msg is short unicode. create single
         first_part['Coding'] = CODING_UNICODE
         first_part['TextDecoded'] = text
-        first_part['MultiPart'] = 'false'
+        first_part['MultiPart'] = u'false'
         return [first_part, ]
     else:
         # msg have to be multipart
-        MAX_LEN = 153
+        MAX_LEN = 150
         UMAX_LEN = 63
-        first_part['MultiPart'] = 'true'
+        first_part['MultiPart'] = u'true'
 
         # while it's possible to send parts of an SMS
         # with different encoding, most phone won't like it
@@ -111,7 +108,7 @@ def message_to_parts(message):
         while parts_text:
             # create part for each chunk
             seq += 1
-            part = {'Coding': '', 'TextDecoded': '',
+            part = {'Coding': u'', 'TextDecoded': u'',
                     'SequencePosition': seq, 'UDH': udh}
             stub = parts_text[:MAX_LEN]
             if not msg_is_unicode(stub):
@@ -125,14 +122,14 @@ def message_to_parts(message):
             parts.append(part)
 
     all_parts = [first_part] + parts
-    parts_num = all_parts.__len__()
+    parts_num = len(all_parts)
 
     # adjust UDH for multipart
     for i in range(0, parts_num):
-        all_parts[i]['UDH'] = '%s%s%s' \
+        all_parts[i]['UDH'] = u'%s%s%s' \
                               % (udh,
-                                 str(parts_num).zfill(2),
-                                 str(i + 1).zfill(2))
+                                 unicode(str(parts_num).zfill(2)),
+                                 unicode(str(i + 1).zfill(2)))
         # harmonize Coding for all parts if required
         if not nosettings.NOSMSD_MIX_ENCODING_PARTS:
             all_parts[i]['Coding'] = single_coding
@@ -154,24 +151,24 @@ def process_smsd(message):
 
     # create message (first part)
     part = parts[0]
-    cursor.execute("INSERT INTO outbox (DestinationNumber, Coding, " \
-                   "TextDecoded, MultiPart, CreatorID, UDH) " \
-                   "VALUES (%s, %s, %s, %s, %s, %s)",
+    cursor.execute(u"INSERT INTO outbox (DestinationNumber, Coding, "
+                   u"TextDecoded, MultiPart, CreatorID, UDH) "
+                   u"VALUES (%s, %s, %s, %s, %s, %s)",
                    [part['DestinationNumber'], part['Coding'],
                    part['TextDecoded'], part['MultiPart'],
                    part['CreatorID'], part['UDH']])
     dbh.commit()
 
-    if parts.__len__() > 1:
+    if len(parts) > 1:
         msg_id = dbh.last_insert_id(cursor, Outbox)
         logger.debug(u"MULTIPART with ID %d" % msg_id)
 
-        for i in range(1, parts.__len__()):
+        for i in range(1, len(parts)):
             part = parts[i]
-            cursor.execute("INSERT INTO outbox_multipart " \
-                           "(ID, Coding, TextDecoded, " \
-                           "SequencePosition, UDH) " \
-                           "VALUES (%s, %s, %s, %s, %s)", [msg_id,
+            cursor.execute(u"INSERT INTO outbox_multipart "
+                           u"(ID, Coding, TextDecoded, "
+                           u"SequencePosition, UDH) "
+                           u"VALUES (%s, %s, %s, %s, %s)", [msg_id,
                            part['Coding'], part['TextDecoded'],
                            part['SequencePosition'], part['UDH']])
             dbh.commit()

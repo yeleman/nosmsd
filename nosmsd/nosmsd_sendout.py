@@ -7,7 +7,6 @@
 import sys
 import logging
 
-from nosmsd.settings import settings as nosettings
 from nosmsd.utils import send_sms
 
 logger = logging.getLogger(__name__)

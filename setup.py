@@ -8,6 +8,7 @@ from fnmatch import fnmatchcase
 
 from distutils.util import convert_path
 from setuptools import setup, find_packages
+#from distutils.core import setup
 
 # Provided as an attribute, so you can append to these instead
 # of replicating them:
@@ -91,7 +92,6 @@ def find_package_data(where=".", package="", exclude=standard_exclude,
 excluded_directories = standard_exclude_directories
 package_data = find_package_data(exclude_directories=excluded_directories)
 
-
 setup(
     name='nosmsd',
     version=__import__('nosmsd').__version__,
@@ -113,7 +113,6 @@ setup(
 
     packages=find_packages(),
     include_package_data=True,
-    package_data=package_data,
 
     scripts=['nosmsd/nosmsd_incoming.py',
              'nosmsd/nosmsd_inject.py',
