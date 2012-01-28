@@ -2,7 +2,7 @@
 # encoding=utf-8
 
 from django.db import models
-
+from nosmsd.utils import send_sms
 
 class Inbox(models.Model):
 
@@ -63,12 +63,99 @@ class Inbox(models.Model):
     def date(self):
         return self.receivingdatetime
 
-    @property
-    def content(self):
-        return self.textdecoded
-
     def get_status_display(self):
         return self.status
+
+    @property
+    def content(self):
+        return Inbox.multipart_text(self)
+
+    @property
+    def udh_root(self):
+        if not self.udh:
+            return ''
+        return self.udh[:-2]
+
+    @property
+    def SequencePosition(self):
+        try:
+            return int(self.udh[-2:])
+        except:
+            return 0
+
+    def is_multipart(self):
+        return bool(len(self.udh))
+
+    def parts(self):
+        return Inbox.parts_from(self)
+
+    @classmethod
+    def parts_from(cls, message):
+        parts = {}
+        peers = Inbox.objects.filter(sendernumber=message.sendernumber,
+                                     udh__contains=message.udh_root)
+        for peer in peers:
+            # UDH colision?
+            if not peer.udh.startswith(message.udh_root):
+                continue
+            parts[peer.SequencePosition] = peer
+
+        return parts
+
+    @classmethod
+    def multipart_text(cls, message):
+        if message.is_multipart():
+            return u''.join([p.textdecoded
+                             for p in cls.parts_from(message).values()])
+        return message.textdecoded
+
+    def change_status(self, new_status, cascade=True):
+        if not new_status in (self.STATUS_CREATED,
+                              self.STATUS_PROCESSED,
+                              self.STATUS_ERROR):
+            return False
+        if new_status == self.STATUS_CREATED:
+            self.processed = self.PROC_FALSE
+        else:
+            self.processed = self.PROC_TRUE
+        self.status = new_status
+        self.save()
+        if cascade and self.is_multipart():
+            for part in self.parts():
+                part.change_status(new_status, cascade=False)
+        return True
+
+    def mark_processed(self, cascade=True):
+        self.change_status(self.STATUS_PROCESSED)
+
+    def mark_error(self, cascade=True):
+        self.change_status(self.STATUS_ERROR)
+
+    def unmark_processed(self, cascade=True):
+        self.change_status(self.STATUS_CREATED)
+
+    @property
+    def is_hw_processed(self):
+        return self.processed == self.PROC_TRUE
+
+    @property
+    def is_processed(self):
+        return self.status == self.STATUS_PROCESSED
+
+    @property
+    def is_error(self):
+        return self.status == self.STATUS_ERROR
+
+    def respond(self, text):
+        return send_sms(self.sendernumber, text)
+
+    @classmethod
+    def from_id(cls, id_):
+        return cls.objects.get(id=id_)
+
+    @classmethod
+    def from_identity(cls, ident):
+        return cls.objects.filter(sendernumber=ident)
 
 
 class SentItems(models.Model):

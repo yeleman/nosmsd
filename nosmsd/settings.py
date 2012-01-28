@@ -30,6 +30,11 @@ NOSMSD_DATABASE_OPTIONS = {}
 # Numerous phones does not support this.
 NOSMSD_MIX_ENCODING_PARTS = False
 
+# some multipart (3parts+) messages seems to fail sometime
+# for example with Huawei E1750
+NOSMSD_USE_INJECT = False
+NOSMSD_INJECT_PATH = '/usr/bin/gammu-smsd-inject'
+
 # try to find local settings to retrieve VENV path
 for fpath in ['/etc/nosmsd.conf.py',
               os.path.expanduser('~/.nosmsd.conf.py'),

@@ -49,7 +49,7 @@ def message_to_parts(message):
     """ converts text/identity dict to list of dict repr gammu parts """
     CODING_UNICODE = u'Unicode_No_Compression'
     CODING_DEFAULT = u'Default_No_Compression'
-    MAX_LEN = 156
+    MAX_LEN = 160
     UMAX_LEN = 70
     CREATOR = u'nosmsd'
 
@@ -77,7 +77,7 @@ def message_to_parts(message):
         return [first_part, ]
     else:
         # msg have to be multipart
-        MAX_LEN = 150
+        MAX_LEN = 153
         UMAX_LEN = 63
         first_part['MultiPart'] = u'true'
 
@@ -141,6 +141,21 @@ def process_smsd(message):
     """ record message to gammu DB for sending.
 
     Will be sent as soon as gammu loops on it """
+
+    if nosettings.NOSMSD_USE_INJECT:
+        import subprocess
+        try:
+            subprocess.check_call([nosettings.NOSMSD_INJECT_PATH, 
+                                   'TEXT',
+                                   u'"%s"' % message['identity'],
+                                   '-text',
+                                   u'"%s"' % message['text'],
+                                   '-len',
+                                   str(len(message['text']))], shell=False)
+        except subprocess.CalledProcessError as e:
+            logger.error(e)
+
+        return
 
     from nosmsd.database import dbh, Outbox
     cursor = dbh.get_cursor()

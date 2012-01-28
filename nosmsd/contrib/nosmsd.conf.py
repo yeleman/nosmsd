@@ -11,3 +11,6 @@ NOSMSD_DATABASE = {'type': 'MySQL', 'name': 'gammu'}
 NOSMSD_DATABASE_OPTIONS = {'user': 'gammu', 'passwd': 'gammu',
                            'host': 'localhost',
                            'use_unicode': True, 'charset': 'utf8'}
+
+NOSMSD_USE_INJECT = False
+NOSMSD_INJECT_PATH = '/usr/bin/gammu-smsd-inject'

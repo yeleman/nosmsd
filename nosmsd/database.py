@@ -63,12 +63,12 @@ class Inbox(BaseModel):
     def udh_root(self):
         if not self.UDH:
             return ''
-        return self.UDH[-2:]
+        return self.UDH[:-2]
 
     @property
     def SequencePosition(self):
         try:
-            return int(self.UDH[:-2])
+            return int(self.UDH[-2:])
         except:
             return 0
 
@@ -82,8 +82,7 @@ class Inbox(BaseModel):
     def parts_from(cls, message):
         parts = {}
         peers = Inbox.filter(SenderNumber=message.SenderNumber,
-                             UDH__contains=message.udh_root,
-                             Processed=cls.PROC_FALSE)
+                             UDH__contains=message.udh_root)
         for peer in peers:
             # UDH colision?
             if not peer.UDH.startswith(message.udh_root):
@@ -95,9 +94,9 @@ class Inbox(BaseModel):
     @classmethod
     def multipart_text(cls, message):
         if message.is_multipart():
-            return u''.join(cls.parts_from(message))
-        else:
-            return message.TextDecoded
+            return u''.join([p.TextDecoded
+                             for p in cls.parts_from(message).values()])
+        return message.TextDecoded
 
     def change_status(self, new_status, cascade=True):
         if not new_status in (self.STATUS_CREATED,
