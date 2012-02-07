@@ -168,7 +168,7 @@ def process_smsd(message):
     part = parts[0]
     cursor.execute(u"INSERT INTO outbox (DestinationNumber, Coding, "
                    u"TextDecoded, MultiPart, CreatorID, UDH) "
-                   u"VALUES (%s, %s, %s, %s, %s, %s)",
+                   u"VALUES (?, ?, ?, ?, ?, ?)",
                    [part['DestinationNumber'], part['Coding'],
                    part['TextDecoded'], part['MultiPart'],
                    part['CreatorID'], part['UDH']])
@@ -183,7 +183,7 @@ def process_smsd(message):
             cursor.execute(u"INSERT INTO outbox_multipart "
                            u"(ID, Coding, TextDecoded, "
                            u"SequencePosition, UDH) "
-                           u"VALUES (%s, %s, %s, %s, %s)", [msg_id,
+                           u"VALUES (?, ?, ?, ?, ?)", [msg_id,
                            part['Coding'], part['TextDecoded'],
                            part['SequencePosition'], part['UDH']])
             dbh.commit()
