@@ -2,6 +2,7 @@
 # encoding=utf-8
 
 import peewee
+from datetime import datetime
 
 from nosmsd.settings import settings as nosettings
 from nosmsd.utils import send_sms
@@ -168,9 +169,21 @@ class Inbox(BaseModel):
                        SenderNumber=sender,
                        status=cls.STATUS_CREATED,
                        Coding=coding,
-                       Processed=Inbox.PROC_FALSE)
+                       Processed=Inbox.PROC_FALSE,
+                       UpdatedInDB=datetime.now(),
+                       ReceivingDateTime=datetime.now(),
+                       Text=u'',
+                       UDH=u'',
+                       RecipientID=u'')
         instance.save()
         return instance
+
+    def __unicode__(self):
+        return u"%d#%s#%s" % (self.id, self.identity,
+                              self.date.strftime('%d-%m-%Y'))
+
+    def __repr__(self):
+        return self.id
 
 
 class Outbox(BaseModel):
@@ -180,7 +193,40 @@ class Outbox(BaseModel):
     class Meta:
         db_table = 'outbox'
 
-    ID = peewee.PrimaryKeyField()
+    #ID = peewee.PrimaryKeyField()
+
+    UpdatedInDB = peewee.DateTimeField()
+    InsertIntoDB = peewee.DateTimeField()
+    SendingDateTime = peewee.DateTimeField()
+    SendBefore = peewee.DateTimeField()
+    SendAfter = peewee.DateTimeField()
+    Text = peewee.TextField()
+    DestinationNumber = peewee.CharField()
+    Coding = peewee.CharField('Default_No_Compression')
+    UDH = peewee.CharField()
+    Class = peewee.CharField('-1')
+    TextDecoded = peewee.TextField(default=u'')
+    ID = peewee.IntegerField()
+    MultiPart = peewee.CharField(default='false')
+    RelativeValidity = peewee.IntegerField(default=-1)
+    SenderID = peewee.TextField(),
+    SendingTimeOut = peewee.DateTimeField()
+    DeliveryReport = peewee.CharField('default')
+    CreatorID = peewee.CharField(null=True)
+
+
+class OutBoxMultipart(BaseModel):
+
+    class Meta:
+        db_table = 'outbox_multipart'
+
+    Text = peewee.TextField()
+    Coding = peewee.CharField(default='Default_No_Compression')
+    UDH = peewee.CharField()
+    Class = peewee.IntegerField(default=-1)
+    TextDecoded = peewee.TextField(null=True)
+    ID = peewee.IntegerField()
+    SequencePosition = peewee.IntegerField(default=1)
 
 
 class SentItems(BaseModel):

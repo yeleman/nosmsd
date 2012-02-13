@@ -157,8 +157,7 @@ def process_smsd(message):
 
         return
 
-    from nosmsd.database import dbh, Outbox
-    cursor = dbh.get_cursor()
+    from nosmsd.database import Outbox, peewee, OutBoxMultipart
 
     parts = message_to_parts(message)
     import pprint
@@ -166,27 +165,27 @@ def process_smsd(message):
 
     # create message (first part)
     part = parts[0]
-    cursor.execute(u"INSERT INTO outbox (DestinationNumber, Coding, "
-                   u"TextDecoded, MultiPart, CreatorID, UDH) "
-                   u"VALUES (?, ?, ?, ?, ?, ?)",
-                   [part['DestinationNumber'], part['Coding'],
-                   part['TextDecoded'], part['MultiPart'],
-                   part['CreatorID'], part['UDH']])
-    dbh.commit()
+    iq = peewee.InsertQuery(Outbox,
+                            DestinationNumber=part['DestinationNumber'],
+                            Coding=part['Coding'],
+                            TextDecoded=part['TextDecoded'],
+                            MultiPart=part['MultiPart'],
+                            CreatorID=part['CreatorID'],
+                            UDH=part['UDH'])
+    msg_id = iq.execute()
 
     if len(parts) > 1:
-        msg_id = dbh.last_insert_id(cursor, Outbox)
         logger.debug(u"MULTIPART with ID %d" % msg_id)
 
         for i in range(1, len(parts)):
             part = parts[i]
-            cursor.execute(u"INSERT INTO outbox_multipart "
-                           u"(ID, Coding, TextDecoded, "
-                           u"SequencePosition, UDH) "
-                           u"VALUES (?, ?, ?, ?, ?)", [msg_id,
-                           part['Coding'], part['TextDecoded'],
-                           part['SequencePosition'], part['UDH']])
-            dbh.commit()
+            iq = peewee.InsertQuery(OutBoxMultipart,
+                                    ID=msg_id,
+                                    Coding=part['Coding'],
+                                    TextDecoded=part['TextDecoded'],
+                                    SequencePosition=part['SequencePosition'],
+                                    UDH=part['UDH'])
+            iq.execute()
 
 
 def process(message):
