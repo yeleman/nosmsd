@@ -4,6 +4,13 @@
 from django.db import models
 from nosmsd.utils import send_sms
 
+class MultipartManager(models.Manager):
+
+    def get_query_set(self):
+        return super(MultipartManager, self).get_query_set() \
+                                         .filter(sequenceposition=1)
+
+
 class Inbox(models.Model):
 
     class Meta:
@@ -221,6 +228,10 @@ class SentItems(models.Model):
     relativevalidity = models.IntegerField(db_column='RelativeValidity')
     creatorid = models.TextField(db_column='CreatorID')
 
+    # django manager first
+    objects = MultipartManager()
+    raw = models.Manager()
+
     def __unicode__(self):
         return self.textdecoded
 
@@ -234,14 +245,35 @@ class SentItems(models.Model):
 
     @property
     def content(self):
-        return self.textdecoded
+        return SentItems.multipart_text(self)
 
     def get_status_display(self):
         return self.status
 
     def total_parts(self):
-        return SentItems.objects.filter(id=self.id).count()
+        return SentItems.raw.filter(id=self.id).count()
+
+    def is_multipart(self):
+        return self.total_parts() > 1
 
     @property
     def sequence(self):
         return u"%d/%d" % (self.sequenceposition, self.total_parts())
+
+    def parts(self):
+        return Inbox.parts_from(self)
+
+    @classmethod
+    def parts_from(cls, message):
+        parts = {}
+        for peer in SentItems.raw.filter(id=message.id):
+            parts[peer.sequenceposition] = peer
+
+        return parts
+
+    @classmethod
+    def multipart_text(cls, message):
+        if message.is_multipart():
+            return u''.join([p.textdecoded
+                             for p in cls.parts_from(message).values()])
+        return message.textdecoded
