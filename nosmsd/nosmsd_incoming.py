@@ -38,7 +38,7 @@ def handle(*args, **options):
 
     # retrieve message from DB
     try:
-        message = Inbox.select().get(ID=sql_id, Processed=Inbox.PROC_FALSE)
+        message = Inbox.filter(ID=sql_id, Processed=Inbox.PROC_FALSE).get()
     except Inbox.DoesNotExist:
         logger.warning(u"No unprocessed row in DB for ID %d" % sql_id)
         return False

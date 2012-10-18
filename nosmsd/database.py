@@ -153,11 +153,11 @@ class Inbox(BaseModel):
 
     @classmethod
     def from_id(cls, id_):
-        return cls.select().get(ID=id_)
+        return cls.filter(ID=id_).get()
 
     @classmethod
     def from_identity(cls, ident):
-        return cls.select().Where(SenderNumber=ident)
+        return cls.filter(SenderNumber=ident)
 
     @classmethod
     def add(cls, sender, text):
