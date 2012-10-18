@@ -39,6 +39,8 @@ NOSMSD_INJECT_PATH = '/usr/bin/gammu-smsd-inject'
 for fpath in ['/etc/nosmsd.conf.py',
               os.path.expanduser('~/.nosmsd.conf.py'),
               os.path.expanduser('~/nosmsd.conf.py'),
+              # VIRTUALENV/etc/nosmsd.conf.py
+              os.path.join(os.path.dirname(os.path.dirname(os.environ.get('_', '/usr/bin/python'))), 'etc', 'nosmsd.conf.py'),
               'nosmsd.conf.py']:
     try:
         imp.load_source('local_settings', fpath)
