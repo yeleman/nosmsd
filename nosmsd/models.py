@@ -3,6 +3,8 @@
 
 from django.db import models
 from nosmsd.utils import send_sms
+from nosmsd.smsd_errors import ERROR_MESSAGES
+
 
 class MultipartManager(models.Manager):
 
@@ -141,6 +143,12 @@ class Inbox(models.Model):
     def unmark_processed(self, cascade=True):
         self.change_status(self.STATUS_CREATED)
 
+    def error(self, verbose=False):
+        return self.status
+
+    def error_verbose(self):
+        return self.error(verbose=True)
+
     @property
     def is_hw_processed(self):
         return self.processed == self.PROC_TRUE
@@ -256,12 +264,34 @@ class SentItems(models.Model):
     def is_multipart(self):
         return self.total_parts() > 1
 
+    def parts(self):
+        return SentItems.parts_from(self)
+
+    @property
+    def is_error(self):
+        return self.status in (self.STATUS_SENDING_ERROR,
+                               self.STATUS_DELIVERY_FAILED,
+                               self.STATUS_DELIVERY_UNKNOWN,
+                               self.STATUS_ERROR)
+
+    @property
+    def is_pending(self):
+        return self.status in (self.STATUS_SENDING_OK_NOREPORT,
+                               self.STATUS_DELIVERY_PENDING)
+
+    def error(self, verbose=False):
+        index = 0 if not verbose else 1
+        try:
+            return ERROR_MESSAGES[self.statuserror][index]
+        except IndexError:
+            return ERROR_MESSAGES[0][index]
+
+    def error_verbose(self):
+        return self.error(verbose=True)
+
     @property
     def sequence(self):
         return u"%d/%d" % (self.sequenceposition, self.total_parts())
-
-    def parts(self):
-        return Inbox.parts_from(self)
 
     @classmethod
     def parts_from(cls, message):

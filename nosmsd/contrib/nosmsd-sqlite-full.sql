@@ -22,10 +22,8 @@ CREATE TABLE inbox (
   ID INTEGER PRIMARY KEY AUTOINCREMENT,
   RecipientID TEXT NOT NULL,
   Processed TEXT NOT NULL DEFAULT 'false',
-  status TEXT NOT NULL DEFAULT 'created',
   CHECK (Coding IN 
-  ('Default_No_Compression','Unicode_No_Compression','8bit','Default_Compression','Unicode_Compression')),
-  CHECK (status IN ('created', 'processed', 'error'))
+  ('Default_No_Compression','Unicode_No_Compression','8bit','Default_Compression','Unicode_Compression')) 
 );
 
 CREATE TRIGGER update_inbox_time UPDATE ON inbox 
