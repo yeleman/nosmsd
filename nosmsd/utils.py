@@ -166,12 +166,12 @@ def process_smsd(message):
     # create message (first part)
     part = parts[0]
     iq = peewee.InsertQuery(Outbox,
-                            {'DestinationNumber': part['DestinationNumber'],
-                             'Coding': part['Coding'],
-                             'TextDecoded': part['TextDecoded'],
-                             'MultiPart': part['MultiPart'],
-                             'CreatorID': part['CreatorID'],
-                             'UDH': part['UDH']})
+                            {Outbox.DestinationNumber: part['DestinationNumber'],
+                             Outbox.Coding: part['Coding'],
+                             Outbox.TextDecoded: part['TextDecoded'],
+                             Outbox.MultiPart: part['MultiPart'],
+                             Outbox.CreatorID: part['CreatorID'],
+                             Outbox.UDH: part['UDH']})
     msg_id = iq.execute()
 
     if len(parts) > 1:
@@ -180,11 +180,11 @@ def process_smsd(message):
         for i in range(1, len(parts)):
             part = parts[i]
             iq = peewee.InsertQuery(OutBoxMultipart,
-                                    {'ID': msg_id,
-                                     'Coding': part['Coding'],
-                                     'TextDecoded': part['TextDecoded'],
-                                     'SequencePosition': part['SequencePosition'],
-                                     'UDH': part['UDH']})
+                                    {OutBoxMultipart.ID: msg_id,
+                                     OutBoxMultipart.Coding: part['Coding'],
+                                     OutBoxMultipart.TextDecoded: part['TextDecoded'],
+                                     OutBoxMultipart.SequencePosition: part['SequencePosition'],
+                                     OutBoxMultipart.UDH: part['UDH']})
             iq.execute()
 
 
