@@ -74,7 +74,10 @@ class Inbox(BaseModel):
             return 0
 
     def is_multipart(self):
-        return bool(len(self.UDH))
+        try:
+            return bool(self.UDH[2:4] in ('00', '08'))
+        except:
+            return False
 
     def parts(self):
         return Inbox.parts_from(self)
@@ -82,9 +85,10 @@ class Inbox(BaseModel):
     @classmethod
     def parts_from(cls, message):
         parts = {}
+        udhr = u"%s%%" % message.udh_root
         peers = Inbox.select().where(Inbox.SenderNumber 
                                      == message.SenderNumber, 
-                                     Inbox.UDH % message.udh_root)
+                                     Inbox.UDH % udhr)
         for peer in peers:
             # UDH colision?
             if not peer.UDH.startswith(message.udh_root):
