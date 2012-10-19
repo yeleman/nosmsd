@@ -97,7 +97,7 @@ setup(
     version=__import__('nosmsd').__version__,
     license='GNU Lesser General Public License (LGPL), Version 3',
 
-    install_requires=['peewee>=0.7.4'],
+    install_requires=['peewee>=2.0.2'],
     provides=['nosmsd'],
 
     description='Python wrapper around Gammu-smsd Database.',

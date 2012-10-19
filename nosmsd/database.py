@@ -82,8 +82,9 @@ class Inbox(BaseModel):
     @classmethod
     def parts_from(cls, message):
         parts = {}
-        peers = Inbox.filter(SenderNumber=message.SenderNumber,
-                             UDH__contains=message.udh_root)
+        peers = Inbox.select().where(Inbox.SenderNumber 
+                                     == message.SenderNumber, 
+                                     Inbox.UDH % message.udh_root)
         for peer in peers:
             # UDH colision?
             if not peer.UDH.startswith(message.udh_root):
