@@ -60,8 +60,8 @@ def handle(*args, **options):
         except Exception as e:
             message.status = Inbox.STATUS_ERROR
             message.save()
-            logger.error(u"SMS handler failed on %s with %r" \
-                          % (message, e))
+            logger.error(u"SMS handler failed on %s with %r"
+                         % (message, e))
 
     message.status = Inbox.STATUS_PROCESSED
     message.Processed = Inbox.PROC_TRUE

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding=utf-8
 
-VERSION = (0, 25, 0)
+VERSION = (0, 26, 0)
 
 
 def get_version():

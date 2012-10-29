@@ -8,7 +8,7 @@ from nosmsd.models import Inbox, SentItems
 
 class InboxAdmin(admin.ModelAdmin):
     model = Inbox
-    list_display = ('identity', 'date', \
+    list_display = ('identity', 'date',
                     'get_status_display', 'content')
     list_filter = ['coding', 'status', 'processed']
     search_fields = ['sendernumber', 'textdecoded']
@@ -17,7 +17,7 @@ class InboxAdmin(admin.ModelAdmin):
 
 class SentItemsAdmin(admin.ModelAdmin):
     model = SentItems
-    list_display = ('identity', 'date', \
+    list_display = ('identity', 'date',
                     'get_status_display', 'sequence', 'id', 'content')
     list_filter = ['coding', 'status']
     search_fields = ['destinationnumber', 'textdecoded']

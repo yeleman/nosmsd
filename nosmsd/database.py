@@ -86,8 +86,8 @@ class Inbox(BaseModel):
     def parts_from(cls, message):
         parts = {}
         udhr = u"%s%%" % message.udh_root
-        peers = Inbox.select().where(Inbox.SenderNumber 
-                                     == message.SenderNumber, 
+        peers = Inbox.select().where(Inbox.SenderNumber
+                                     == message.SenderNumber,
                                      Inbox.UDH % udhr)
         for peer in peers:
             # UDH colision?

@@ -145,7 +145,7 @@ def process_smsd(message):
     if nosettings.NOSMSD_USE_INJECT:
         import subprocess
         try:
-            subprocess.check_call([nosettings.NOSMSD_INJECT_PATH, 
+            subprocess.check_call([nosettings.NOSMSD_INJECT_PATH,
                                    'TEXT',
                                    u'"%s"' % message['identity'],
                                    '-text',
@@ -166,8 +166,9 @@ def process_smsd(message):
     # create message (first part)
     part = parts[0]
     iq = peewee.InsertQuery(Outbox,
-                            {Outbox.DestinationNumber: part['DestinationNumber'],
-                             Outbox.Coding: part['Coding'],
+                            {Outbox.DestinationNumber:
+                             part['DestinationNumber'],
+                            Outbox.Coding: part['Coding'],
                              Outbox.TextDecoded: part['TextDecoded'],
                              Outbox.MultiPart: part['MultiPart'],
                              Outbox.CreatorID: part['CreatorID'],
@@ -182,8 +183,10 @@ def process_smsd(message):
             iq = peewee.InsertQuery(OutBoxMultipart,
                                     {OutBoxMultipart.ID: msg_id,
                                      OutBoxMultipart.Coding: part['Coding'],
-                                     OutBoxMultipart.TextDecoded: part['TextDecoded'],
-                                     OutBoxMultipart.SequencePosition: part['SequencePosition'],
+                                     OutBoxMultipart.TextDecoded:
+                                    part['TextDecoded'],
+                                     OutBoxMultipart.SequencePosition:
+                                    part['SequencePosition'],
                                      OutBoxMultipart.UDH: part['UDH']})
             iq.execute()
 

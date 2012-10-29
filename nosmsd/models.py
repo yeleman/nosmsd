@@ -2,6 +2,7 @@
 # encoding=utf-8
 
 from django.db import models
+from django.db.models.query import QuerySet
 from nosmsd.utils import send_sms
 from nosmsd.smsd_errors import ERROR_MESSAGES
 
@@ -10,7 +11,60 @@ class MultipartManager(models.Manager):
 
     def get_query_set(self):
         return super(MultipartManager, self).get_query_set() \
-                                         .filter(sequenceposition=1)
+                                            .filter(sequenceposition=1)
+
+
+class CustomQuerySet(QuerySet):
+
+    def filter_trigger(self, record):
+        return True
+
+    def iterator(self):
+        real_iterator = super(CustomQuerySet, self).iterator()
+        for record in real_iterator:
+            if self.filter_trigger(record):
+                yield record
+
+    def count(self):
+        if self._result_cache is not None and not self._iter:
+            return len(self._result_cache)
+        return sum(1 for x in self.iterator())
+
+
+class GroupedInboxQuerySet(CustomQuerySet):
+
+    def filter_trigger(self, record):
+        return record.SequencePosition == 1
+
+
+class OnlyMultipartInboxQuerySet(CustomQuerySet):
+
+    def filter_trigger(self, record):
+        return record.is_multipart()
+
+
+class OnlySinglepartInboxQuerySet(CustomQuerySet):
+
+    def filter_trigger(self, record):
+        return not record.is_multipart()
+
+
+class InboxMultipartManager(models.Manager):
+
+    def get_query_set(self):
+        return GroupedInboxQuerySet(self.model, using=self._db)
+
+
+class InboxMultipartMessagesManager(models.Manager):
+
+    def get_query_set(self):
+        return OnlyMultipartInboxQuerySet(self.model, using=self._db)
+
+
+class InboxSinglepartMessagesManager(models.Manager):
+
+    def get_query_set(self):
+        return OnlySinglepartInboxQuerySet(self.model, using=self._db)
 
 
 class Inbox(models.Model):
@@ -61,6 +115,11 @@ class Inbox(models.Model):
                                  db_column='Processed', choices=PROCS)
     status = models.CharField(max_length=27, choices=STATUSES)
 
+    objects = InboxMultipartManager()
+    multiparts = InboxMultipartMessagesManager()
+    singleparts = InboxSinglepartMessagesManager()
+    raw = models.Manager()
+
     def __unicode__(self):
         return self.textdecoded
 
@@ -90,7 +149,7 @@ class Inbox(models.Model):
         try:
             return int(self.udh[-2:])
         except:
-            return 0
+            return 1
 
     def is_multipart(self):
         return bool(len(self.udh))
@@ -101,12 +160,9 @@ class Inbox(models.Model):
     @classmethod
     def parts_from(cls, message):
         parts = {}
-        peers = Inbox.objects.filter(sendernumber=message.sendernumber,
-                                     udh__contains=message.udh_root)
+        peers = Inbox.raw.filter(sendernumber=message.sendernumber,
+                                 udh__startswith=message.udh_root)
         for peer in peers:
-            # UDH colision?
-            if not peer.udh.startswith(message.udh_root):
-                continue
             parts[peer.SequencePosition] = peer
 
         return parts
@@ -218,7 +274,7 @@ class SentItems(models.Model):
                                             blank=True)
     text = models.TextField(db_column='Text')
     destinationnumber = models.CharField(max_length=60,
-                                        db_column='DestinationNumber')
+                                         db_column='DestinationNumber')
     coding = models.CharField(max_length=66, db_column='Coding',
                               choices=CODINGS, default=DEFAULT_CODING)
     udh = models.TextField(db_column='UDH')

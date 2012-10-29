@@ -41,7 +41,8 @@ for fpath in ['/etc/nosmsd.conf.py',
               os.path.expanduser('~/.nosmsd.conf.py'),
               os.path.expanduser('~/nosmsd.conf.py'),
               # VIRTUALENV/etc/nosmsd.conf.py
-              os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'etc', 'nosmsd.conf.py'),
+              os.path.join(os.path.dirname(os.path.dirname(sys.executable)),
+                           'etc', 'nosmsd.conf.py'),
               'nosmsd.conf.py']:
     try:
         imp.load_source('local_settings', fpath)
